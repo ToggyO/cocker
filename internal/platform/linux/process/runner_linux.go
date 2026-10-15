@@ -17,10 +17,12 @@ var _ runtimeprocess.Runner = (*runner)(nil)
 
 type runner struct{}
 
+// NewRunner creates a process runner for Linux.
 func NewRunner() runtimeprocess.Runner {
 	return &runner{}
 }
 
+// Run starts a process, connects its standard streams, and waits for completion.
 func (r *runner) Run(ctx context.Context, request runtimeprocess.Request) (runtimeprocess.Result, error) {
 	cmd := exec.CommandContext(ctx, request.Command, request.Args...)
 	cmd.Stdin = request.Stdin
