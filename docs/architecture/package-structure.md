@@ -32,6 +32,7 @@ internal/
     domain/
     config/
     runtime/
+        process/
     storage/
     platform/
         linux/
@@ -132,6 +133,16 @@ Application layer координирует domain, storage и runtime. Он пр
 
 Runtime зависит от abstractions platform и не должен размещать конкретные `unix.Mount` или запись в `memory.max` прямо в orchestration code.
 
+### `internal/runtime/process`
+
+Содержит platform-neutral contract и types для управления процессом:
+
+- `Request`;
+- `Result`;
+- `Runner` interface.
+
+Пакет не импортирует `os/exec`, `syscall` или Linux-specific APIs.
+
 ## `internal/storage`
 
 Содержит repository implementation:
@@ -154,6 +165,8 @@ Storage не должен импортировать Linux platform packages.
 - `SysProcAttr`;
 - wait status;
 - descriptor setup.
+
+Текущая Linux implementation находится в `runner_linux.go`. Она реализует `runtime/process.Runner` и может импортировать `syscall.WaitStatus`.
 
 ### `namespace`
 
@@ -197,16 +210,17 @@ Observability не должна менять lifecycle state и не должн�
 
 ```text
 cmd/cocker
-    │
-    ▼
-cli ───────────────► app
- │                    │
- ▼                    ├──► domain
-config                ├──► storage abstraction
-                     └──► runtime abstraction
-                              │
-                              ▼
-                       platform/linux
+    ├── creates platform/linux implementation
+    └── calls cli
+             │
+             ▼
+           cli
+             │
+             ▼
+    runtime/process contract
+             ▲
+             │
+    platform/linux/process
 ```
 
 Практические правила:
@@ -214,6 +228,7 @@ config                ├──► storage abstraction
 - `domain` не зависит от остальных внутренних пакетов;
 - `config` зависит от domain types, но не от runtime;
 - `app` зависит от interfaces, которые нужны его use cases;
+- `cli` принимает runtime interfaces и не создаёт platform implementation;
 - concrete Linux implementations собираются в `cmd/cocker` или composition package;
 - platform packages не импортируют `cli`;
 - циклические зависимости запрещены.
