@@ -10,12 +10,16 @@ import (
 )
 
 const (
+	// CmdRun is the name of the command that starts a process.
 	CmdRun = "run"
 
+	// UnixExitCodeConventionMagicValue is the base value used for signal-based exit codes.
 	UnixExitCodeConventionMagicValue = 128
-	SigIntExitCode                   = UnixExitCodeConventionMagicValue + int(syscall.SIGINT)
+	// SigIntExitCode is the exit code returned when execution is canceled.
+	SigIntExitCode = UnixExitCodeConventionMagicValue + int(syscall.SIGINT)
 )
 
+// Run parses CLI arguments, executes the requested command, and returns its exit code.
 func Run(args []string, runner process.Runner) int {
 	if len(args) == 0 {
 		printUsage()
