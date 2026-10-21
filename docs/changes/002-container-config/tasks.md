@@ -1,6 +1,6 @@
 # Tasks: Container Configuration and Domain Model
 
-## Task 1: Domain types and invariants
+## Task 1: Domain types and invariants — completed
 
 Создать чистые типы `ContainerSpec`, `ResourceSpec`, `CPUQuota`, `NamespaceSpec`, `EnvVar` и `IOSpec`, а также domain validation errors.
 
@@ -8,9 +8,9 @@
 
 Приёмка: domain package не импортирует platform или config; структура отражает согласованный `ContainerSpec`; tests проверяют обязательные поля и namespace invariants.
 
-Проверка: `go test ./internal/domain` и `go vet ./...`.
+Проверка: `go test ./internal/domain`, `go test ./...` и `go vet ./...` — успешно.
 
-## Task 2: Resource value parsers
+## Task 2: Resource value parsers — next
 
 Преобразовать memory, CPU и PIDs из пользовательского формата в числовые domain values.
 
