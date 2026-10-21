@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ToggyO/cocker/internal/runtime/process"
+	"github.com/ToggyO/cocker/internal/testutil"
 )
 
 type fakeRunner struct {
@@ -77,7 +78,7 @@ func TestRun_NonZeroExitCode(t *testing.T) {
 func TestRun_SignalTermination(t *testing.T) {
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			Signal: intPtr(int(syscall.SIGTERM)),
+			Signal: testutil.Ptr(int(syscall.SIGTERM)),
 		},
 	}
 
@@ -138,7 +139,7 @@ func TestRun_Canceled(t *testing.T) {
 func TestRun_CanceledTakesPrecedenceOverSignal(t *testing.T) {
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			Signal:   intPtr(int(syscall.SIGTERM)),
+			Signal:   testutil.Ptr(int(syscall.SIGTERM)),
 			Canceled: true,
 		},
 	}
@@ -188,7 +189,7 @@ func runAndAssertCommand(
 
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			ExitCode: intPtr(expectedExitCode),
+			ExitCode: testutil.Ptr(expectedExitCode),
 		},
 	}
 
@@ -203,8 +204,4 @@ func runAndAssertCommand(
 	}
 
 	assertCmdAndArgs(t, runner, expectedCmd, expectedArgs)
-}
-
-func intPtr(value int) *int {
-	return &value
 }

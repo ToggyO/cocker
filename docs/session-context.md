@@ -19,6 +19,7 @@
 - Архитектурный review завершён; end-to-end flow согласован и готов к декомпозиции changes.
 - Git flow зафиксирован в `docs/development/git-flow.md`: `master` — stable, `develop` — latest checked, рабочие ветки создаются от `develop`.
 - Реальная process структура уточнена: contract находится в `internal/runtime/process`, Linux implementation — в `internal/platform/linux/process/runner_linux.go`, composition root — в `cmd/cocker/main.go`.
+- Для следующего блока создан change `docs/changes/002-container-config/`: proposal, design и tasks для Container Configuration and Domain Model.
 - Формат сопровождения зафиксирован: по умолчанию давать сигнатуры, цели, стартовые детали, assertions и команды проверки без полного листинга кода.
 - После завершения каждого связанного блока задач требуется отдельное большое milestone review до начала следующего блока.
 - Границы блоков определяет агент до реализации и явно фиксирует цель, задачи, критерий завершения, исключения и проверки.
@@ -37,6 +38,6 @@
 
 ## Next step
 
-CLI-тест на одновременные `Canceled` и `Signal` добавлен. На машине разработчика повторить `gofmt`, `go test ./...` и `go vet ./...`, затем зафиксировать change и перейти к следующему блоку.
+CLI-тест на одновременные `Canceled` и `Signal` добавлен. Проверки `gofmt`, `go test ./...` и `go vet ./...` повторно прошли. Документация следующего блока подготовлена; следующая задача — Task 1: Domain types and invariants.
 
 ## Open questions
