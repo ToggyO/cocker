@@ -10,13 +10,15 @@
 
 Проверка: `go test ./internal/domain`, `go test ./...` и `go vet ./...` — успешно.
 
-## Task 2: Resource value parsers — next
+## Task 2: Resource value parsers — completed
 
 Преобразовать memory, CPU и PIDs из пользовательского формата в числовые domain values.
 
 Приёмка: memory принимает bytes, `KiB`, `MiB`, `GiB`; CPU принимает millicores и создаёт fixed period `100000`; PIDs принимает положительное целое; overflow, zero, negative и неизвестные units отклоняются; floating point не используется.
 
 Проверка: valid, invalid и boundary tests; `go test ./...`.
+
+Результат приёмки: исправлены потеря последней цифры memory без суффикса и промежуточное переполнение CPU quota. Регрессионные тесты проверяют многозначные bytes, границы uint64, максимальную допустимую CPU quota и PIDs limit. `gofmt -l internal/config`, `go test ./...`, `go vet ./...` и `go build -o /tmp/cocker-task2 ./cmd/cocker` — успешно. Privileged integration tests не требуются: задача содержит только parsing без kernel operations. Контракт ошибок пока сохраняет `strconv.ErrRange` через `ParseError` для memory/CPU и использует `ParsingErrorOverflow` для арифметического overflow и PIDs.
 
 ## Task 3: JSON decoding and normalization
 

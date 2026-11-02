@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/ToggyO/cocker/internal/ptr"
 	"github.com/ToggyO/cocker/internal/runtime/process"
-	"github.com/ToggyO/cocker/internal/testutil"
 )
 
 type fakeRunner struct {
@@ -78,7 +78,7 @@ func TestRun_NonZeroExitCode(t *testing.T) {
 func TestRun_SignalTermination(t *testing.T) {
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			Signal: testutil.Ptr(int(syscall.SIGTERM)),
+			Signal: ptr.To(int(syscall.SIGTERM)),
 		},
 	}
 
@@ -139,7 +139,7 @@ func TestRun_Canceled(t *testing.T) {
 func TestRun_CanceledTakesPrecedenceOverSignal(t *testing.T) {
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			Signal:   testutil.Ptr(int(syscall.SIGTERM)),
+			Signal:   ptr.To(int(syscall.SIGTERM)),
 			Canceled: true,
 		},
 	}
@@ -189,7 +189,7 @@ func runAndAssertCommand(
 
 	runner := &fakeRunner{
 		expectedResult: &process.Result{
-			ExitCode: testutil.Ptr(expectedExitCode),
+			ExitCode: ptr.To(expectedExitCode),
 		},
 	}
 

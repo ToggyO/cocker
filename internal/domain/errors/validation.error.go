@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// TODO: add descr
 type ValidationError struct {
 	Field   string `json:"field"`
 	Value   string `json:"value,omitempty"`
@@ -21,7 +22,7 @@ func NewValidationErrors() *ValidationErrors {
 	}
 }
 
-func (e ValidationErrors) Error() string { // TODO: в этом методе как выбрать тип receiver? Укащатель или значение?
+func (e ValidationErrors) Error() string {
 	var builder strings.Builder
 
 	builder.WriteString("validation errors:\n")

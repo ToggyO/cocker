@@ -21,6 +21,7 @@
 - Реальная process структура уточнена: contract находится в `internal/runtime/process`, Linux implementation — в `internal/platform/linux/process/runner_linux.go`, composition root — в `cmd/cocker/main.go`.
 - Для следующего блока создан change `docs/changes/002-container-config/`: proposal, design и tasks для Container Configuration and Domain Model.
 - В change `002-container-config` завершена Task 1 (`Domain types and invariants`): domain-модель, defaults, validation errors и тесты добавлены; `gofmt`, `go test ./...` и `go vet ./...` проходят. Следующая задача — Task 2 (`Resource value parsers`).
+- Task 2 (`Resource value parsers`) завершена и принята после повторного review: исправлены parsing memory без суффикса и промежуточное переполнение CPU; регрессионные boundary tests, formatting, `go test ./...`, `go vet ./...` и build проходят. Следующая задача — Task 3 (`JSON decoding and normalization`).
 - Формат сопровождения зафиксирован: по умолчанию давать сигнатуры, цели, стартовые детали, assertions и команды проверки без полного листинга кода.
 - После завершения каждого связанного блока задач требуется отдельное большое milestone review до начала следующего блока.
 - Границы блоков определяет агент до реализации и явно фиксирует цель, задачи, критерий завершения, исключения и проверки.
@@ -28,6 +29,7 @@
 
 ## Agreed constraints
 
+- При каждой новой сессии агент после чтения этого файла должен до начала работы ознакомиться с документацией из `docs/development/`, начиная с `workflow.md`.
 - Разработка и запуск ориентированы на Ubuntu/Linux.
 - Код пишет пользователь вручную.
 - Работа ведётся через спецификации, design-документы и небольшие задачи.
@@ -39,6 +41,6 @@
 
 ## Next step
 
-CLI-тест на одновременные `Canceled` и `Signal` добавлен. Проверки `gofmt`, `go test ./...` и `go vet ./...` повторно прошли. Task 1 блока конфигурации завершена; следующая задача — Task 2: Resource value parsers.
+Task 2 блока конфигурации принята. Следующая задача — Task 3: JSON decoding and normalization. Большое milestone review всего блока обязательно после Task 5. Необязательные улучшения после review Task 2: убрать устаревшие TODO, упростить helpers проверки цифр и при необходимости согласовать единый overflow sentinel между parser'ами.
 
 ## Open questions

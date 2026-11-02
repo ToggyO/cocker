@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/ToggyO/cocker/internal/domain/errors"
-	"github.com/ToggyO/cocker/internal/testutil"
+	"github.com/ToggyO/cocker/internal/ptr"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,12 +25,12 @@ func TestContainerSpecValidate_CollectsAllErrors(t *testing.T) {
 	assert.Error(t, err)
 
 	var validationErrors *domainErrors.ValidationErrors
-	require.ErrorAs(t, err, &validationErrors) // TODO: сообщения
+	require.ErrorAs(t, err, &validationErrors)
 
 	assert.Len(t, validationErrors.Errors, 9)
 	actualFieldNames := collectErrorFields(validationErrors)
 
-	assert.Contains(t, actualFieldNames, "rootfs") // TODO: сообщения
+	assert.Contains(t, actualFieldNames, "rootfs")
 	assert.Contains(t, actualFieldNames, "command")
 	assert.Contains(t, actualFieldNames, "workingDir")
 	assert.Contains(t, actualFieldNames, "namespaces.user")
@@ -79,7 +79,7 @@ func TestContainerSpecValidate_WorkingDir(t *testing.T) {
 			if tc.shouldFail {
 				assert.Error(t, err)
 				var validationErrors *domainErrors.ValidationErrors
-				require.ErrorAs(t, err, &validationErrors) // TODO: сообщения
+				require.ErrorAs(t, err, &validationErrors)
 				actualFieldNames := collectErrorFields(validationErrors)
 
 				assert.Contains(t, actualFieldNames, "workingDir")
@@ -105,19 +105,19 @@ func TestResourceSpecValidate(t *testing.T) {
 		},
 		{
 			name:         "MemoryBytes and PidsLimit both 0 is invalid",
-			spec:         createResourcesSpec(testutil.Ptr(uint64(0)), testutil.Ptr(uint64(0)), nil),
+			spec:         createResourcesSpec(ptr.To(uint64(0)), ptr.To(uint64(0)), nil),
 			targetFields: map[string]struct{}{"resources.memoryBytes": {}, "resources.pidsLimit": {}},
 			shouldFail:   true,
 		},
 		{
 			name:         "CPUQuota.Quota and CPUQuota.Period both 0 is invalid",
-			spec:         createResourcesSpec(testutil.Ptr(uint64(1)), testutil.Ptr(uint64(1)), createCPUQuota(testutil.Ptr(uint64(0)), testutil.Ptr(uint64(0)))),
+			spec:         createResourcesSpec(ptr.To(uint64(1)), ptr.To(uint64(1)), createCPUQuota(ptr.To(uint64(0)), ptr.To(uint64(0)))),
 			targetFields: map[string]struct{}{"resources.cpuQuota.quota": {}, "resources.cpuQuota.period": {}},
 			shouldFail:   true,
 		},
 		{
 			name:         "All fields are valid",
-			spec:         createResourcesSpec(testutil.Ptr(uint64(1)), testutil.Ptr(uint64(1)), createCPUQuota(testutil.Ptr(uint64(1)), testutil.Ptr(uint64(1)))),
+			spec:         createResourcesSpec(ptr.To(uint64(1)), ptr.To(uint64(1)), createCPUQuota(ptr.To(uint64(1)), ptr.To(uint64(1)))),
 			targetFields: map[string]struct{}{"resources.memoryBytes": {}, "resources.pidsLimit": {}, "resources.cpuQuota.quota": {}, "resources.cpuQuota.period": {}},
 			shouldFail:   false,
 		},
@@ -263,7 +263,7 @@ func createInvalidContainerSpec() ContainerSpec {
 	namespaces.Mount = false
 	namespaces.User = true
 
-	resources := createResourcesSpec(testutil.Ptr(uint64(0)), testutil.Ptr(uint64(0)), createCPUQuota(testutil.Ptr(uint64(0)), testutil.Ptr(uint64(0))))
+	resources := createResourcesSpec(ptr.To(uint64(0)), ptr.To(uint64(0)), createCPUQuota(ptr.To(uint64(0)), ptr.To(uint64(0))))
 	return createContainerSpec(
 		"",
 		[]string{},
@@ -313,13 +313,13 @@ func createResourcesSpec(memoryBytes *uint64, pidsLimit *uint64, cpuQuota *CPUQu
 	if memoryBytes != nil {
 		spec.MemoryBytes = memoryBytes
 	} else {
-		spec.MemoryBytes = testutil.Ptr(uint64(1000))
+		spec.MemoryBytes = ptr.To(uint64(1000))
 	}
 
 	if pidsLimit != nil {
 		spec.PidsLimit = pidsLimit
 	} else {
-		spec.PidsLimit = testutil.Ptr(uint64(1000))
+		spec.PidsLimit = ptr.To(uint64(1000))
 	}
 
 	if cpuQuota != nil {
