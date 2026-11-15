@@ -64,17 +64,19 @@ cocker run \
   "rootfs": "./rootfs",
   "command": ["/bin/sh"],
   "hostname": "cocker-dev",
-  "env": {
-    "APP_ENV": "dev"
-  },
+  "env": [
+    {"name": "APP_ENV", "value": "dev"}
+  ],
   "resources": {
-    "memory": "256M",
+    "memory": "256MiB",
     "pids": 64
   }
 }
 ```
 
-Точная JSON schema будет описана отдельной спецификацией перед реализацией.
+Для MVP environment задаётся массивом объектов, а memory использует
+поддерживаемые binary units (`B`, `KiB`, `MiB`, `GiB`). Точная JSON schema и
+нормализация описываются в активной change перед реализацией decoder.
 
 ## Правила приоритетов
 

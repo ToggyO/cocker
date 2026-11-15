@@ -3,16 +3,19 @@ package domain
 import (
 	"fmt"
 
-	"github.com/ToggyO/cocker/internal/domain/errors"
+	domainErrors "github.com/ToggyO/cocker/internal/domain/errors"
 )
 
+// EnvVar represents a process environment variable as a name-value pair.
 type EnvVar struct {
 	Name  string
 	Value string
 }
 
+// EnvVars is an ordered list of process environment variables.
 type EnvVars []EnvVar
 
+// Validate appends violations for invalid or duplicate variable names to errors.
 func (ev EnvVars) Validate(errors *domainErrors.ValidationErrors) {
 	duplicatesMap := make(map[string]bool)
 

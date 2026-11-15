@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ToggyO/cocker/internal/config/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -71,7 +72,7 @@ func TestMemoryBytesParser_NotValidValues(t *testing.T) {
 			name:     "empty",
 			rawValue: "",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorEmpty)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorEmpty)
 			},
 		},
 		{
@@ -85,58 +86,58 @@ func TestMemoryBytesParser_NotValidValues(t *testing.T) {
 			name:     "zero value",
 			rawValue: "0B",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorZeroValue)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorZeroValue)
 			},
 		},
 		{
 			name:     "negative value",
 			rawValue: "-1",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "value overflow",
 			rawValue: "17179869184GiB",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorOverflow)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorOverflow)
 			},
 		},
 		{
 			name:     "value with sign character",
 			rawValue: "+1",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "value with invalid units",
 			rawValue: "1UiB",
 			expectedError: func(t *testing.T, err error) {
-				var parseErr *ParseError
+				var parseErr *configErrors.ParseError
 				require.ErrorAs(t, err, &parseErr)
-				assert.True(t, strings.HasPrefix(parseErr.message, expectedUnitsErrorMessagePrefix))
+				assert.True(t, strings.HasPrefix(parseErr.Error(), expectedUnitsErrorMessagePrefix))
 			},
 		},
 		{
 			name:     "invalid number",
 			rawValue: "12u56B",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "unexpected space",
 			rawValue: "1 11B",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "floating point value",
 			rawValue: "1.1B",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 	}
@@ -201,67 +202,67 @@ func TestCPUQuotaParser_NotValidValues(t *testing.T) {
 			name:     "empty",
 			rawValue: "",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorEmpty)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorEmpty)
 			},
 		},
 		{
 			name:     "without units",
 			rawValue: "10",
 			expectedError: func(t *testing.T, err error) {
-				var parseErr *ParseError
+				var parseErr *configErrors.ParseError
 				require.ErrorAs(t, err, &parseErr)
-				assert.True(t, strings.HasPrefix(parseErr.message, expectedUnitsErrorMessagePrefix))
+				assert.True(t, strings.HasPrefix(parseErr.Error(), expectedUnitsErrorMessagePrefix))
 			},
 		},
 		{
 			name:     "zero number",
 			rawValue: "0m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorZeroValue)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorZeroValue)
 			},
 		},
 		{
 			name:     "negative value",
 			rawValue: "-1m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "value with sign character",
 			rawValue: "+1m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "single digit",
 			rawValue: "1",
 			expectedError: func(t *testing.T, err error) {
-				var parseErr *ParseError
+				var parseErr *configErrors.ParseError
 				require.ErrorAs(t, err, &parseErr)
-				assert.True(t, strings.HasPrefix(parseErr.message, "invalid millicores value"))
+				assert.True(t, strings.HasPrefix(parseErr.Error(), "invalid millicores value"))
 			},
 		},
 		{
 			name:     "floating point value",
 			rawValue: "1.1m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "unexpected space",
 			rawValue: "1 11m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "value overflow",
 			rawValue: "184467440737095517m",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorOverflow)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorOverflow)
 			},
 		},
 	}
@@ -314,42 +315,42 @@ func TestPidsLimitParser_NotValidValues(t *testing.T) {
 			name:     "empty",
 			rawValue: "",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorEmpty)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorEmpty)
 			},
 		},
 		{
 			name:     "zero value",
 			rawValue: "0",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorZeroValue)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorZeroValue)
 			},
 		},
 		{
 			name:     "negative value",
 			rawValue: "-1",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "floating point value",
 			rawValue: "1.1",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "unexpected space",
 			rawValue: "1 11",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorInvalidNumber)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorInvalidNumber)
 			},
 		},
 		{
 			name:     "value overflow",
 			rawValue: "18446744073709551616",
 			expectedError: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, ParsingErrorOverflow)
+				assert.ErrorIs(t, err, configErrors.ParsingErrorOverflow)
 			},
 		},
 	}

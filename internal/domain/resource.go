@@ -3,15 +3,17 @@ package domain
 import (
 	"fmt"
 
-	"github.com/ToggyO/cocker/internal/domain/errors"
+	domainErrors "github.com/ToggyO/cocker/internal/domain/errors"
 )
 
+// ResourceSpec holds optional resource limits; nil fields mean no explicit limit.
 type ResourceSpec struct {
 	MemoryBytes *uint64
 	CPUQuota    *CPUQuota
 	PidsLimit   *uint64
 }
 
+// Validate appends violations for nonpositive resource limits to errors.
 func (r ResourceSpec) Validate(errors *domainErrors.ValidationErrors) {
 	if r.MemoryBytes != nil && *r.MemoryBytes <= 0 {
 		addError(errors, domainErrors.ValidationError{

@@ -3,9 +3,10 @@ package domain
 import (
 	"path/filepath"
 
-	"github.com/ToggyO/cocker/internal/domain/errors"
+	domainErrors "github.com/ToggyO/cocker/internal/domain/errors"
 )
 
+// ContainerSpec describes the desired process, filesystem, and isolation settings.
 type ContainerSpec struct {
 	RootFS     string
 	Command    []string
@@ -17,6 +18,8 @@ type ContainerSpec struct {
 	IO         IOSpec
 }
 
+// DefaultNamespaceSpec enables PID, mount, UTS, IPC, and network isolation.
+// User namespaces remain disabled for the root-based MVP.
 func DefaultNamespaceSpec() NamespaceSpec {
 	return NamespaceSpec{
 		PID:     true,
@@ -28,6 +31,8 @@ func DefaultNamespaceSpec() NamespaceSpec {
 	}
 }
 
+// Validate returns all detected domain rule violations, or nil if none are found.
+// It does not check filesystem existence or create runtime resources.
 func (s ContainerSpec) Validate() error {
 	validationErrorsPtr := domainErrors.NewValidationErrors()
 

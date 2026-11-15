@@ -119,7 +119,13 @@ type IOSpec struct {
 
 ### `IO`
 
-Для обычного foreground `run` defaults должны подключать stdout и stderr к CLI. Поведение stdin и detached mode будет описано в CLI specification.
+Для foreground `run` normalization устанавливает `AttachStdin`, `AttachStdout`
+и `AttachStderr` в `true`: процесс получает stdin, stdout и stderr вызывающего
+CLI. Это соответствует текущему поведению process runner adapter.
+
+В MVP `IO` отсутствует во внешнем `config.Input` и JSON: policy фиксирована,
+пользовательских overrides нет. Подключение потоков не означает выделение PTY.
+Detached mode и пользовательские IO options требуют отдельной спецификации.
 
 ## Нормализация
 
@@ -161,8 +167,11 @@ JSON является внешним форматом и может исполь
 {
   "rootfs": "./rootfs",
   "command": ["/bin/sh"],
+  "env": [
+    {"name": "APP_ENV", "value": "dev"}
+  ],
   "resources": {
-    "memory": "256M",
+    "memory": "256MiB",
     "pids": 64
   }
 }

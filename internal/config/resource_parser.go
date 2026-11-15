@@ -6,19 +6,19 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/ToggyO/cocker/internal/config/errors"
 	"github.com/ToggyO/cocker/internal/domain"
 )
 
 // ParseMemoryBytes parses a positive integer memory limit into bytes.
 // Supported suffixes are B, KiB, MiB, and GiB; an omitted suffix denotes bytes.
-// TODO: кейс с дробным числом
 func ParseMemoryBytes(value string) (uint64, error) {
 	if value == "" {
-		return 0, ParsingErrorEmpty
+		return 0, configErrors.ParsingErrorEmpty
 	}
 
 	if !isDigit(value[0]) {
-		return 0, ParsingErrorInvalidNumber
+		return 0, configErrors.ParsingErrorInvalidNumber
 	}
 
 	length := len(value)
@@ -28,15 +28,15 @@ func ParseMemoryBytes(value string) (uint64, error) {
 		val := value[i]
 		if isDigit(val) {
 			if suffixStart < len(value) {
-				// Цифра после начала суффикса: например, "12Ki3B".
-				return 0, ParsingErrorInvalidNumber
+				// Reject digits after the suffix begins, for example "12Ki3B".
+				return 0, configErrors.ParsingErrorInvalidNumber
 			}
 			continue
 		}
 
 		// Check value is valid number and non-floating point number
 		if isFloatingPoint(val) {
-			return 0, ParsingErrorInvalidNumber
+			return 0, configErrors.ParsingErrorInvalidNumber
 		}
 
 		if suffixStart == len(value) {
@@ -49,11 +49,11 @@ func ParseMemoryBytes(value string) (uint64, error) {
 
 	number, err := strconv.ParseUint(numericPart, 10, 64)
 	if err != nil {
-		return 0, NewParseError(err.Error(), err)
+		return 0, configErrors.NewParseError("invalid memory amount", err)
 	}
 
 	if number == 0 {
-		return 0, ParsingErrorZeroValue
+		return 0, configErrors.ParsingErrorZeroValue
 	}
 
 	var multiplier uint64
@@ -68,12 +68,12 @@ func ParseMemoryBytes(value string) (uint64, error) {
 	case unitsGigabytes:
 		multiplier = 1024 * 1024 * 1024
 	default:
-		return 0, NewParseError(fmt.Sprintf(unitsErrorMessageTemplate, unitsArr), nil)
+		return 0, configErrors.NewParseError(fmt.Sprintf(configErrors.UnitsErrorMessageTemplate, unitsArr), nil)
 	}
 
 	//check for uint64 overflow of result value
 	if number > math.MaxUint64/multiplier {
-		return 0, ParsingErrorOverflow
+		return 0, configErrors.ParsingErrorOverflow
 	}
 
 	return number * multiplier, nil
@@ -84,43 +84,43 @@ func ParseMemoryBytes(value string) (uint64, error) {
 func ParseCPUQuota(value string) (domain.CPUQuota, error) {
 	cpuQuota := domain.CPUQuota{}
 	if value == "" {
-		return cpuQuota, ParsingErrorEmpty
+		return cpuQuota, configErrors.ParsingErrorEmpty
 	}
 
 	if !isDigit(value[0]) {
-		return cpuQuota, ParsingErrorInvalidNumber
+		return cpuQuota, configErrors.ParsingErrorInvalidNumber
 	}
 
 	length := len(value)
 
 	if length == 1 {
-		return cpuQuota, NewParseError(fmt.Sprintf("invalid millicores value '%s'", value), nil)
+		return cpuQuota, configErrors.NewParseError(fmt.Sprintf("invalid millicores value '%s'", value), nil)
 	}
 
 	if value[length-1] != unitsMillicores {
-		return cpuQuota, NewParseError(fmt.Sprintf(unitsErrorMessageTemplate, []rune{unitsMillicores}), nil)
+		return cpuQuota, configErrors.NewParseError(fmt.Sprintf(configErrors.UnitsErrorMessageTemplate, []rune{unitsMillicores}), nil)
 	}
 
 	rawValue := value[:length-1]
 
 	// Check value is valid number and non-floating point number
 	if !isValidValue(rawValue, isDigit) {
-		return cpuQuota, ParsingErrorInvalidNumber
+		return cpuQuota, configErrors.ParsingErrorInvalidNumber
 	}
 
 	millicores, err := strconv.ParseUint(rawValue, 10, 64)
 	if err != nil {
-		return cpuQuota, NewParseError(err.Error(), err)
+		return cpuQuota, configErrors.NewParseError("invalid quota amount", err)
 	}
 
 	if millicores < 1 {
-		return cpuQuota, ParsingErrorZeroValue
+		return cpuQuota, configErrors.ParsingErrorZeroValue
 	}
 
-	const quotaMultiplier uint64 = cpuPeriod / 1000 // 100
+	const quotaMultiplier = cpuPeriod / 1000 // 100
 
 	if millicores > math.MaxUint64/quotaMultiplier {
-		return cpuQuota, ParsingErrorOverflow
+		return cpuQuota, configErrors.ParsingErrorOverflow
 	}
 
 	cpuQuota.Quota = millicores * quotaMultiplier
@@ -132,28 +132,28 @@ func ParseCPUQuota(value string) (domain.CPUQuota, error) {
 // Empty, signed, fractional, zero, and out-of-range values are rejected.
 func ParsePidsLimit(value string) (uint64, error) {
 	if value == "" {
-		return 0, ParsingErrorEmpty
+		return 0, configErrors.ParsingErrorEmpty
 	}
 
 	if !isDigit(value[0]) {
-		return 0, ParsingErrorInvalidNumber
+		return 0, configErrors.ParsingErrorInvalidNumber
 	}
 
 	// Check value is valid number and non-floating point number
 	if !isValidValue(value, isDigit) {
-		return 0, ParsingErrorInvalidNumber
+		return 0, configErrors.ParsingErrorInvalidNumber
 	}
 
 	number, err := strconv.ParseUint(value, 10, 64)
 	if err != nil {
 		if errors.Is(err, strconv.ErrRange) {
-			return 0, ParsingErrorOverflow
+			return 0, configErrors.ParsingErrorOverflow
 		}
-		return 0, NewParseError(err.Error(), err)
+		return 0, configErrors.NewParseError("invalid PIDs amount", err)
 	}
 
 	if number == 0 {
-		return 0, ParsingErrorZeroValue
+		return 0, configErrors.ParsingErrorZeroValue
 	}
 
 	return number, nil

@@ -16,6 +16,19 @@ JSON / CLI input
 
 После этого application/runtime получает только нормализованный `ContainerSpec`.
 
+`DecodeJSON(io.Reader) (Input, error)` выполняет только decoding.
+`Normalize(Input) (domain.ContainerSpec, error)` применяется после merge,
+возвращает первую ошибку преобразования и не вызывает `Validate`.
+Финальную domain validation выполняет вызывающий pipeline в Task 5.
+Вложенный optional `null` означает отсутствие значения; верхнеуровневый
+`null`, пустой ввод и trailing JSON values запрещены. При ошибке decoding
+возвращается пустой `Input`. `pids` в JSON — число `uint64`, положительность
+проверяется domain validation. Environment — упорядоченный массив name/value;
+дубликаты сохраняются до validation. Namespace policy фиксирована и не
+представлена в `Input`. Relative rootfs разрешается от cwd CLI без проверки
+существования и разрешения symlinks. WorkingDir очищается, но не превращается
+из относительного в абсолютный; пустое значение получает `/`.
+
 ## Domain model
 
 Базовая модель включает `ContainerSpec` с полями rootfs, command, hostname, working directory, environment, resources, namespaces и IO policy. Resource values хранятся числовыми типами; pointer-поля отличают отсутствие ограничения от запрещённого `0`.
@@ -36,6 +49,13 @@ type CPUQuota struct {
 ## Defaults
 
 После normalization `WorkingDir` равен `/`, если не задан; PID, Mount, UTS, IPC и Network включены; User namespace не включён; неуказанные resource limits остаются `nil`; stdio defaults соответствуют foreground CLI run.
+
+Foreground IO policy фиксирована: `IO.AttachStdin`, `IO.AttachStdout` и
+`IO.AttachStderr` равны `true`. Runtime получает потоки вызывающего CLI;
+выделение PTY этим не подразумевается. `IO` не входит в промежуточный
+`config.Input` и JSON schema, CLI overrides для него в этом change отсутствуют.
+Значение `IOSpec` формируется на этапе normalization. Detached mode остаётся
+за пределами change.
 
 Rootfs path нормализуется в абсолютный path. Проверка существования rootfs остаётся runtime/platform responsibility, если она требует filesystem policy; config validation проверяет непустое значение и корректную форму.
 

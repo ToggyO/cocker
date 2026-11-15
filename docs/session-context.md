@@ -7,7 +7,7 @@
 ## Current status
 
 - Репозиторий создан с нуля.
-- Реализация базового process runner завершена; следующий функциональный слой ещё не начат.
+- Базовый process runner завершён; в блоке конфигурации завершены Tasks 1–3, следующая — Task 4.
 - Product vision, architecture overview и lifecycle specification подготовлены.
 - ADR-0001 зафиксировал cgroup v2 как модель для MVP.
 - ADR-0002 зафиксировал запуск MVP от root с архитектурной подготовкой к rootless mode.
@@ -19,9 +19,10 @@
 - Архитектурный review завершён; end-to-end flow согласован и готов к декомпозиции changes.
 - Git flow зафиксирован в `docs/development/git-flow.md`: `master` — stable, `develop` — latest checked, рабочие ветки создаются от `develop`.
 - Реальная process структура уточнена: contract находится в `internal/runtime/process`, Linux implementation — в `internal/platform/linux/process/runner_linux.go`, composition root — в `cmd/cocker/main.go`.
-- Для следующего блока создан change `docs/changes/002-container-config/`: proposal, design и tasks для Container Configuration and Domain Model.
-- В change `002-container-config` завершена Task 1 (`Domain types and invariants`): domain-модель, defaults, validation errors и тесты добавлены; `gofmt`, `go test ./...` и `go vet ./...` проходят. Следующая задача — Task 2 (`Resource value parsers`).
-- Task 2 (`Resource value parsers`) завершена и принята после повторного review: исправлены parsing memory без суффикса и промежуточное переполнение CPU; регрессионные boundary tests, formatting, `go test ./...`, `go vet ./...` и build проходят. Следующая задача — Task 3 (`JSON decoding and normalization`).
+- Активный change — `docs/changes/002-container-config/`: Container Configuration and Domain Model.
+- Task 1 (`Domain types and invariants`) завершена: domain-модель, defaults, validation errors и тесты добавлены; formatting, tests и vet прошли.
+- Task 2 (`Resource value parsers`) завершена и принята после повторного review: исправлены parsing memory без суффикса и промежуточное переполнение CPU; boundary tests, formatting, tests, vet и build прошли.
+- Task 3 (`JSON decoding and normalization`) завершена и принята; коммит `e7b5eb8` (`feat: add JSON configuration decoding and normalization`). Реализованы `Input`, `DecodeJSON → Input` и отдельный `Normalize → ContainerSpec`, ошибки с сохранением причин и unit tests. Tests, vet, build, gofmt и diff check прошли. После review добавлены GoDoc-комментарии.
 - Формат сопровождения зафиксирован: по умолчанию давать сигнатуры, цели, стартовые детали, assertions и команды проверки без полного листинга кода.
 - После завершения каждого связанного блока задач требуется отдельное большое milestone review до начала следующего блока.
 - Границы блоков определяет агент до реализации и явно фиксирует цель, задачи, критерий завершения, исключения и проверки.
@@ -41,6 +42,18 @@
 
 ## Next step
 
-Task 2 блока конфигурации принята. Следующая задача — Task 3: JSON decoding and normalization. Большое milestone review всего блока обязательно после Task 5. Необязательные улучшения после review Task 2: убрать устаревшие TODO, упростить helpers проверки цифр и при необходимости согласовать единый overflow sentinel между parser'ами.
+Следующая задача — Task 4: CLI overrides and merge. Рабочая ветка —
+`feature/change-002-container-config`. Явные CLI overrides объединяются с
+JSON до normalization. JSON pids имеет тип `*uint64`; `ParsePidsLimit`
+сохранён для строкового CLI-ввода. Финальный вызов `ContainerSpec.Validate()`
+подключается отдельно после merge/normalization в Task 5.
+
+Согласована foreground IO policy для Task 3: normalization устанавливает
+`IO.AttachStdin`, `IO.AttachStdout` и `IO.AttachStderr` в `true`, используя
+потоки вызывающего CLI без PTY. Поле `IO` отсутствует в `config.Input` и JSON;
+пользовательские IO overrides и detached mode в текущий change не входят.
+
+Большое milestone review всего блока обязательно после Task 5. Отложены
+упрощение helpers проверки цифр и единый overflow sentinel между parser'ами.
 
 ## Open questions

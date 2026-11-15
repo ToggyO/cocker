@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// TODO: add descr
+// ValidationError describes a violated rule for a domain field and its value.
 type ValidationError struct {
 	Field   string `json:"field"`
 	Value   string `json:"value,omitempty"`

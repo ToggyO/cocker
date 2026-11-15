@@ -3,9 +3,10 @@ package domain
 import (
 	"fmt"
 
-	"github.com/ToggyO/cocker/internal/domain/errors"
+	domainErrors "github.com/ToggyO/cocker/internal/domain/errors"
 )
 
+// NamespaceSpec identifies the Linux namespaces requested for a container.
 type NamespaceSpec struct {
 	PID     bool
 	Mount   bool
@@ -15,6 +16,7 @@ type NamespaceSpec struct {
 	User    bool
 }
 
+// Validate appends violations for disabled PID or mount isolation or enabled user isolation.
 func (ns NamespaceSpec) Validate(errors *domainErrors.ValidationErrors) {
 	if !ns.PID {
 		addError(errors, domainErrors.ValidationError{
